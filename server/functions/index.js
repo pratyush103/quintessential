@@ -8,6 +8,7 @@
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 
+//  https://blog.postman.com/how-to-create-a-rest-api-with-node-js-and-express/
 
 // The Cloud Functions for Firebase SDK to create Cloud Functions and triggers.
 
@@ -20,9 +21,18 @@ const {initializeApp} = require("firebase-admin/app");
 const {getFirestore} = require("firebase-admin/firestore");
 
 // Import the functions you need from the SDKs you need
-const {getAuth, connectAuthEmulator, signInWithEmailAndPassword } = require("firebase-admin/auth");
-
+const {getAuth,
+  connectAuthEmulator,
+  signInWithEmailAndPassword} = require("firebase-admin/auth");
 const {getAnalytics} = require("firebase/analytics");
+
+// Express Setup
+const express = require("express");
+const app = express();
+const PORT = process.env.PORT || 8080;
+app.use(express.json());
+
+
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -39,12 +49,32 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const db = getFirestore(app);
-const auth = getAuth(app);
+const fireApp = initializeApp(firebaseConfig);
+const analytics = getAnalytics(fireApp);
+const db = getFirestore(fireApp);
+const auth = getAuth(fireApp);
 
 connectAuthEmulator(auth, "http://localhost:9099");
+
+// Firebase Methods
+
+fireApp.auth().createUserWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+    // Signed in
+      const user = userCredential.user;
+    // ...
+    })
+    .catch((error) => {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+    // ..
+    });
+
+
+// Express Methods and enpoints
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
 
 // Create and deploy your first functions
 // https://firebase.google.com/docs/functions/get-started
